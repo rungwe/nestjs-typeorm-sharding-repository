@@ -81,12 +81,12 @@ export class TypeormRepositoryService<
         return this.entityType.findAndCountBy(where);
     }
 
-    async findByIds(ids: any[]): Promise<Entity[]> {
-        return this.entityType.findByIds(ids);
+    async findByIds(ids: any[], shardingKey?: string): Promise<Entity[]> {
+        return this.entityType.findByIds(ids, shardingKey);
     }
 
-    async findOneById(id: string | number | Date | ObjectID): Promise<Entity | null> {
-        return this.entityType.findOneById(id);
+    async findOneById(id: string | number | Date | ObjectID, shardingKey?: string): Promise<Entity | null> {
+        return this.entityType.findOneById(id, shardingKey);
     }
 
     async findOne(options: FindOneOptions<Entity>): Promise<Entity | null | undefined> {

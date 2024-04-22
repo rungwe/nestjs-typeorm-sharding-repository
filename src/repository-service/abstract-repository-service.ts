@@ -44,6 +44,6 @@ export interface AbstractRepositoryService<Entity> {
 
     findOne(options: FindOneOptions<Entity>): Promise<Entity | null | undefined>;
     findOneBy(where: FindOptionsWhere<Entity>): Promise<Entity | null | undefined>;
-    findOneById(id: string | number | Date | ObjectID): Promise<Entity | null>;
-    findByIds(ids: any[]): Promise<Entity[]>;
+    findOneById(id: string | number | Date | ObjectID, shardingKey?: string): Promise<Entity | null>;
+    findByIds(ids: any[], shardingKey?: string): Promise<Entity[]>;
 }

@@ -12,6 +12,7 @@ export interface AbstractShardingDataSource<S, T extends BaseDataSourceOptions> 
     shards: Array<
         Omit<T, keyof BaseDataSourceOptions> & {
             onInitialize?: (dataSource: DataSource) => Promise<void>;
+            default?: boolean
         } & S
     >;
 }
@@ -58,6 +59,7 @@ export type AbstractShardingDataSourceOptions<S = {}> =
 export enum ShardingType {
     RANGE = 'RANGE',
     // MODULAR = 'MODULAR',
+    LIST = 'LIST'
 }
 
 export type DefaultShardingKeyType = number | string;
@@ -84,6 +86,24 @@ export type RangeShardingDataSourceOptions<T = DefaultShardingKeyType> = Abstrac
     shardingType: ShardingType.RANGE;
 };
 
+
+// .__        __       _______ ____________ 
+// | |      |  |     /       | |          | 
+// | |      |  |    |   (----` |___|  |___| 
+// | |      |  |     \   \         |  |      
+// | |____  |  | .----)   |        |  |    
+// |______| |__| |_______/         |__|    
+
+export interface ListShardingRule<T> {
+    key: T;
+}
+
+export type ListShardingDataSourceOptions<T = DefaultShardingKeyType> = AbstractShardingDataSourceOptions<ListShardingRule<T>> & {
+    shardingType: ShardingType.LIST;
+};
+
+
+
 /*
 export type ModularShardingDataSourceOptions<T = DefaultShardingKeyType> = AbstractShardingDataSourceOptions & {
     shardingType: ShardingType.MODULAR;
@@ -91,4 +111,4 @@ export type ModularShardingDataSourceOptions<T = DefaultShardingKeyType> = Abstr
 
 export type ShardingDataSourceOptions = RangeShardingDataSourceOptions | ModularShardingDataSourceOptions;
  */
-export type ShardingDataSourceOptions = RangeShardingDataSourceOptions;
+export type ShardingDataSourceOptions = RangeShardingDataSourceOptions | ListShardingDataSourceOptions;

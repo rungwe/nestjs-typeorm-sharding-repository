@@ -81,12 +81,12 @@ export class ShardingRepositoryService<
         return this.shardingEntityType.findAndCountBy(where);
     }
 
-    async findByIds(ids: any[]): Promise<Entity[]> {
-        return this.shardingEntityType.findByIds(ids);
+    async findByIds(ids: any[], shardingKey?: string): Promise<Entity[]> {
+        return this.shardingEntityType.findByIds(ids, shardingKey);
     }
 
-    async findOneById(id: string | number | Date | ObjectID): Promise<Entity | null> {
-        return this.shardingEntityType.findOneById(id);
+    async findOneById(id: string | number | Date | ObjectID, shardingKey?: string): Promise<Entity | null> {
+        return this.shardingEntityType.findOneById(id, shardingKey);
     }
 
     async findOne(options: FindOneOptions<Entity>): Promise<Entity | null | undefined> {

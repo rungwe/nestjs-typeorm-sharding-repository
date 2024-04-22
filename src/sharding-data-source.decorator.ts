@@ -7,6 +7,11 @@ export interface RangeShardingEntityOptions<ENTITY, KEY_TYPE> extends EntityOpti
     findShardById: (id: any, minKey: KEY_TYPE, maxKey: KEY_TYPE) => boolean;
 }
 
+export interface ListShardingEntityOptions<ENTITY, KEY_TYPE> extends EntityOptions {
+    type: ShardingType.LIST;
+    findShard: (entity: ENTITY, shardingKey: KEY_TYPE ) => boolean;
+}
+
 /*
 export interface ModularShardingEntityOptions<ENTITY, KEY_TYPE> extends EntityOptions {
     type: ShardingType.MODULAR;
@@ -15,8 +20,7 @@ export interface ModularShardingEntityOptions<ENTITY, KEY_TYPE> extends EntityOp
 }
  */
 
-export type ShardingEntityOptions<ENTITY, KEY_TYPE> = RangeShardingEntityOptions<ENTITY, KEY_TYPE>;
-// | ModularShardingEntityOptions<ENTITY, KEY_TYPE>;
+export type ShardingEntityOptions<ENTITY, KEY_TYPE> = RangeShardingEntityOptions<ENTITY, KEY_TYPE> | ListShardingEntityOptions<ENTITY, KEY_TYPE>;
 
 export function ShardingEntity<ENTITY, KEY_TYPE = number>(options: ShardingEntityOptions<ENTITY, KEY_TYPE>) {
     return (target: Function) => {
@@ -28,6 +32,8 @@ export function ShardingEntity<ENTITY, KEY_TYPE = number>(options: ShardingEntit
             Reflect.defineMetadata('SHARDING_TYPE', type, target);
             Reflect.defineMetadata('SHARDING_FUNC', findShard, target);
             Reflect.defineMetadata('SHARDING_FUNC_BY_ID', findShardById, target);
+        
+            
             /*
         } else if (options.type === ShardingType.MODULAR) {
             const { type, findShard, keyProvider, ...opt } = options;
@@ -36,7 +42,13 @@ export function ShardingEntity<ENTITY, KEY_TYPE = number>(options: ShardingEntit
             Reflect.defineMetadata('SHARDING_FUNC', findShard, target);
             Reflect.defineMetadata('SHARDING_KEY_PROVIDER', keyProvider, target);
              */
-        } else throw new Error('ShardingEntity: Unsupported sharding type');
+        } else if(options.type === ShardingType.LIST) {
+            const { type, findShard, ...opt } = options;
+            entityOptions = opt;
+            Reflect.defineMetadata('SHARDING_TYPE', type, target);
+            Reflect.defineMetadata('SHARDING_FUNC', findShard, target);
+        }
+        else throw new Error('ShardingEntity: Unsupported sharding type');
 
         Entity(entityOptions)(target);
     };

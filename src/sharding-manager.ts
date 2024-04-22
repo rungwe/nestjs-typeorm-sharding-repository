@@ -56,17 +56,46 @@ export class ShardingManager {
         /*
         if (this.options.shardingType === ShardingType.MODULAR) {
             throw new Error('ShardingManager: Modular type is not supported yet.');
-        } else */ if (this.options.shardingType === ShardingType.RANGE) {
+        } else */ 
+        if (this.options.shardingType === ShardingType.RANGE) {
             const idx = this.options.shards.findIndex((item) => shardingFunc(entity, item.minKey, item.maxKey));
-            if (idx < 0) return this.dataSources[this.dataSources.length - 1];
+            if (idx < 0) {
+                const defaultIndex = this.options.shards.findIndex((item) => !!item.default);
+                if(defaultIndex < 0) return this.dataSources[this.dataSources.length - 1];
+                return this.dataSources[defaultIndex]
+            } 
             return this.dataSources[idx];
+        } else if(this.options.shardingType === ShardingType.LIST) {
+            const idx = this.options.shards.findIndex((item) => shardingFunc(entity, item.key));
+            if (idx < 0) {
+                const defaultIndex = this.options.shards.findIndex((item) => !!item.default);
+                if(defaultIndex < 0) return this.dataSources[this.dataSources.length - 1];
+                return this.dataSources[defaultIndex]
+            }
+            return this.dataSources[idx]
         } else throw new Error('ShardingManager: Unsupported sharding type');
     }
 
     getDataSourceById(id: unknown, shardingFuncById: Function): DataSource {
         if (this.options.shardingType === ShardingType.RANGE) {
             const idx = this.options.shards.findIndex((item) => shardingFuncById(id, item.minKey, item.maxKey));
-            if (idx < 0) return this.dataSources[this.dataSources.length - 1];
+            if (idx < 0) {
+                const defaultIndex = this.options.shards.findIndex((item) => !!item.default);
+                if(defaultIndex < 0) return this.dataSources[this.dataSources.length - 1];
+                return this.dataSources[defaultIndex]
+            }
+            return this.dataSources[idx];
+        } else throw new Error('ShardingManager: Unsupported sharding type');
+    }
+
+    getDataSourceByShardingKey(key: string): DataSource {
+        if (this.options.shardingType === ShardingType.LIST) {
+            const idx = this.options.shards.findIndex((item) => item.key === key);
+            if (idx < 0) {
+                const defaultIndex = this.options.shards.findIndex((item) => !!item.default);
+                if(defaultIndex < 0) return this.dataSources[this.dataSources.length - 1];
+                return this.dataSources[defaultIndex]
+            }
             return this.dataSources[idx];
         } else throw new Error('ShardingManager: Unsupported sharding type');
     }
