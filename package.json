@@ -19,6 +19,7 @@
     "TypeORM",
     "Sharding",
     "RangeSharding",
+    "ListSharding",
     "Decorator",
     "Distributed",
     "NestJS",
