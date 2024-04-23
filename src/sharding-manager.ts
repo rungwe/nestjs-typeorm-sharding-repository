@@ -2,7 +2,9 @@ import { DataSource, DeepPartial } from 'typeorm';
 import { ShardingBaseEntity } from './sharding-base-entity';
 import { ShardingDataSourceOptions, ShardingType } from './types/typeorm-sharding.type';
 import { DataSourceOptions } from 'typeorm/data-source/DataSourceOptions';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ShardingManager {
     public readonly dataSources: DataSource[] = [];
 
@@ -12,6 +14,12 @@ export class ShardingManager {
     }
 
     protected constructor(public readonly options: ShardingDataSourceOptions) {}
+
+    public static async createInstance(options: ShardingDataSourceOptions): Promise<ShardingManager> {
+        const manager = new ShardingManager(options);
+        await manager.init();
+        return manager;
+    }
 
     protected async init(): Promise<this> {
         const { shards, ...config } = this.options;

@@ -8,12 +8,12 @@
 ## Install
 - NPM
 ```shell
-$ npm install typeorm-sharding-repository --save
+$ npm install nest-typeorm-sharding-repository --save
 ```
 
 - Yarn
 ```shell
-$ yarn add typeorm-sharding-repository
+$ yarn add nest-typeorm-sharding-repository
 ```
 
 ----
