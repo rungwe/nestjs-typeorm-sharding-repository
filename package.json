@@ -1,11 +1,11 @@
 {
-  "name": "typeorm-sharding-repository",
-  "version": "0.3.0",
+  "name": "nest-typeorm-sharding-repository",
+  "version": "1.0.0",
   "description": "TypeORM Sharding Repository: Enables TypeORM to be utilized in a distributed database environment.",
-  "homepage": "https://github.com/kibae/typeorm-sharding-repository",
+  "homepage": "https://github.com/rungwe/nestjs-typeorm-sharding-repository",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kibae/typeorm-sharding-repository.git"
+    "url": "https://github.com/rungwe/nestjs-typeorm-sharding-repository.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,9 @@
     "Sharding",
     "RangeSharding",
     "Decorator",
-    "Distributed"
+    "Distributed",
+    "NestJS",
+    "Multi-tenancy"
   ],
   "author": "Kibae Shin <kibae.shin@gmail.com>",
   "license": "MIT",
