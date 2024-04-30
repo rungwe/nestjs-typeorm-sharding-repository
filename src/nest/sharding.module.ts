@@ -3,7 +3,7 @@ import { ShardingDataSourceOptions } from '../types/typeorm-sharding.type';
 import { ShardingManager } from '../sharding-manager';
 import { RepositoryService } from '../repository-service/repository-service';
 import { MetadataUtils } from 'typeorm/metadata-builder/MetadataUtils';
-import { ShardingBaseEntity } from '..';
+import { ShardingBaseEntity, getRepositoryToken } from '..';
 import { BaseEntity } from 'typeorm';
 
 @Global()
@@ -32,11 +32,7 @@ export class ShardingModule {
 
     static forFeature(entities: (typeof BaseEntity | typeof ShardingBaseEntity)[]): DynamicModule {
       const providers = entities.map(entity => {
-          const isSharded = MetadataUtils.getInheritanceTree(entity as typeof BaseEntity).includes(ShardingBaseEntity);
-          const repositoryToken = isSharded 
-              ? `ShardingRepositoryService<${entity.name}>` 
-              : `TypeormRepositoryService<${entity.name}>`;
-    
+          const repositoryToken =  getRepositoryToken(entity); 
           return {
               provide: repositoryToken,
               useFactory: () => RepositoryService.of(entity),
