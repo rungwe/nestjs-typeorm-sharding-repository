@@ -263,7 +263,7 @@ describe('E2E Tests Example', () => {
 
 ```
 ----
-## Considerations and Future Improvements
+## Design Considerations and Future Improvements
 Currently, most repository find methods in our library do not automatically determine which shard to query, particularly when dealing with List-based sharding where a specific field, such as a partner field, acts as the sharding key. For example, consider the following usage in a user service:
 
 ```Typescript
