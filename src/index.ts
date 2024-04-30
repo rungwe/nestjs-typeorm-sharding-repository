@@ -12,4 +12,6 @@ export * from './repository-service/typeorm-repository-service';
 
 export * from './nest/decorators';
 export * from './nest/sharding.module';
+export * from './nest/util';
+
 
