@@ -5,6 +5,7 @@ import { CaseService } from './service/case-service';
 import { Case4 } from './entity/case4';
 import { ShardingRepositoryService } from '../repository-service/sharding-repository-service';
 import { ShardingManager } from '../sharding-manager';
+import { getRepositoryToken } from '../nest/util';
 
 
 describe('E2E Tests for ShardingModule', () => {
@@ -22,7 +23,8 @@ describe('E2E Tests for ShardingModule', () => {
 
     app = moduleFixture.createNestApplication();
     caseService = app.get<CaseService>(CaseService);
-    const repositoryToken = `ShardingRepositoryService<Case4>`; 
+    const repositoryToken = getRepositoryToken(Case4);
+    console.log(repositoryToken)
     case4Repository = app.get(repositoryToken);
     shardingManager = app.get(ShardingManager);
 

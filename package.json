@@ -1,6 +1,6 @@
 {
   "name": "nest-typeorm-sharding-repository",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "This module extends TypeORM capabilities to support distributed database environments with List and Range-based sharding strategies in a NestJS application.",
   "homepage": "https://github.com/rungwe/nestjs-typeorm-sharding-repository",
   "repository": {
@@ -23,7 +23,7 @@
     "Decorator",
     "Distributed",
     "NestJS",
-    "Multi-tenancy"
+    "Multi-Tenancy"
   ],
   "author": "Chaddy Rungwe <kumbirair@yahoo.com>",
   "license": "MIT",

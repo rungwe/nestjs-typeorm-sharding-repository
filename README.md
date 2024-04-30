@@ -4,8 +4,11 @@
 ## Motivation
 The development of this library was driven by the need for robust sharding or  multi-tenancy support in web applications. Traditional single-database approaches can limit scalability and isolation between tenants. Sharding offers a solution by partitioning data across multiple databases, thus enhancing performance, scalability, and data isolation—key components in multi-tenant architectures. This library aims to simplify the integration of sharding into NestJS applications, making it easier to manage large-scale, multi-tenant data models.
 
-## Acknowledgments
-This project is a fork of [kibae/typeorm-sharding-repository](https://github.com/kibae/typeorm-sharding-repository), originally developed by Kibae Shin. Significant enhancements and adaptations have been made to support list based sharding and integrate this solution seamlessly with NestJS, focusing on transparency and ease of use in multi-tenant environments.
+## Key Features
+- Support for List and Range Sharding: Configure your shards based on simple list values or range segments.
+- Transparent Repository Operations: Interact with your entities as if they were part of a non-sharded database.
+- NestJS Integration: Fully integrated with NestJS modules and dependency injection system.
+
 
 [![Node.js CI](https://github.com/rungwe/nestjs-typeorm-sharding-repository/actions/workflows/node.js.yml/badge.svg)](https://github.com/rungwe/nestjs-typeorm-sharding-repository/actions/workflows/node.js.yml)
 [![NPM Version](https://badge.fury.io/js/nest-typeorm-sharding-repository.svg)](https://www.npmjs.com/package/typeorm-sharding-repository)
@@ -189,6 +192,8 @@ import { CaseService } from './service/case-service';
 import { Case4 } from './entity/case4';
 import { ShardingRepositoryService } from 'nest-typeorm-sharding-repository';
 import { ShardingManager } from 'nest-typeorm-sharding-repository';
+import { getRepositoryToken } from 'nest-typeorm-sharding-repository';
+
 
 describe('E2E Tests Example', () => {
   let app: INestApplication;
@@ -204,7 +209,7 @@ describe('E2E Tests Example', () => {
 
     app = moduleFixture.createNestApplication();
     caseService = app.get<CaseService>(CaseService);
-    const repositoryToken = `ShardingRepositoryService<Case4>`; 
+    const repositoryToken = getRepositoryToken(Case4); 
     case4Repository = app.get(repositoryToken);
     shardingManager = app.get(ShardingManager);
 
@@ -257,6 +262,36 @@ describe('E2E Tests Example', () => {
 });
 
 ```
+----
+## Considerations and Future Improvements
+Currently, most repository find methods in our library do not automatically determine which shard to query, particularly when dealing with List-based sharding where a specific field, such as a partner field, acts as the sharding key. For example, consider the following usage in a user service:
+
+```Typescript
+userRepository.findBy({ firstName: 'foo'})
+```
+In scenarios like this, it's challenging to know which shard to use based on the query alone. At present, our approach involves conducting a full scan across all available shards using parallel execution. Although this method leverages parallelism, it may lead to potential performance drawbacks, especially when the number of shards increases significantly.
+
+To address this, when using List-based sharding, we have enhanced the TypeORM BaseEntity methods **findOneById** and **findByIds** to support an optional field called shardingKey:
+
+```Typescript
+Repository<T>.findOneById(id: string | number | Date | ObjectID, shard, shardingKey?: string): Promise<T | null>
+
+Repository<T>.findByIds(ids: any[], shardingKey?: string): Promise<T[]>
+
+```
+These enhancements allow you to explicitly specify a sharding key along with the query, thereby improving query resolution performance by directly accessing the appropriate shard.
+
+In future developments, we will consider extending all repository find methods with optional sharding key parameter. The downside is the change of the the TypeORM BaseEntity, which we intend to follow as much as we can for cross compatibility 
+
+## Planned Enhancements
+Looking ahead, we are considering extending all repository necessary, finds and updates methods to include an optional sharding key parameter. This modification aims to streamline query processes across sharded environments by ensuring that queries are directed to the correct shard, thereby enhancing efficiency and performance.
+
+However, one challenge we face with this approach is the modification of the TypeORM BaseEntity. We aim to maintain as much compatibility with the original TypeORM interfaces as possible to ensure that our library can be used seamlessly with existing TypeORM-based applications. We will continue to explore ways to integrate these features without significantly diverging from the established patterns of TypeORM.
+
+----
+## Acknowledgments
+This project is a fork of [kibae/typeorm-sharding-repository](https://github.com/kibae/typeorm-sharding-repository), originally developed by Kibae Shin. Significant enhancements and adaptations have been made to support list based sharding and integrate this solution seamlessly with NestJS, focusing on transparency and ease of use in multi-tenant environments.
+
 ----
 
 ## Contributors
