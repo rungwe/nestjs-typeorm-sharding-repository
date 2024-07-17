@@ -26,24 +26,24 @@ export interface AbstractRepositoryService<Entity> {
 
     update(
         criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>,
-        partialEntity: QueryDeepPartialEntity<Entity>
+        partialEntity: QueryDeepPartialEntity<Entity>, shardingKey?:string
     ): Promise<UpdateResult>;
 
     delete(
-        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>
+        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>, shardingKey?:string
     ): Promise<DeleteResult>;
 
-    count(options?: FindManyOptions<Entity>): Promise<number>;
-    countBy(where: FindOptionsWhere<Entity>): Promise<number>;
+    count(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<number>;
+    countBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<number>;
 
-    find(options?: FindManyOptions<Entity>): Promise<Entity[]>;
-    findBy(where: FindOptionsWhere<Entity>): Promise<Entity[]>;
+    find(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<Entity[]>;
+    findBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<Entity[]>;
 
-    findAndCount(options?: FindManyOptions<Entity>): Promise<[Entity[], number]>;
-    findAndCountBy(where: FindOptionsWhere<Entity>): Promise<[Entity[], number]>;
+    findAndCount(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<[Entity[], number]>;
+    findAndCountBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<[Entity[], number]>;
 
-    findOne(options: FindOneOptions<Entity>): Promise<Entity | null | undefined>;
-    findOneBy(where: FindOptionsWhere<Entity>): Promise<Entity | null | undefined>;
+    findOne(options: FindOneOptions<Entity>, shardingKey?:string): Promise<Entity | null | undefined>;
+    findOneBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<Entity | null | undefined>;
     findOneById(id: string | number | Date | ObjectID, shardingKey?: string): Promise<Entity | null>;
     findByIds(ids: any[], shardingKey?: string): Promise<Entity[]>;
 }

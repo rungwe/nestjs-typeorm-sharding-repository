@@ -149,13 +149,52 @@ export class UserService {
     private readonly userRepository: ShardingRepositoryService<User>,
   ) {}
 
-
-  async findAllCases(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAllCases(shardingKey?:string): Promise<Case4[]> {
+    return this.caseRepository.find({}, shardingKey);
   }
 
   async saveCase(user: User): Promise<void> {
    await this.userRepository.save(user)
+  }
+
+  async updateCase(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Case4>, partialEntity: any, shardingKey?: string): Promise<UpdateResult> {
+      return await this.caseRepository.update(criteria, partialEntity, shardingKey);
+  }
+
+  async deleteCase(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Case4>, shardingKey?: string): Promise<DeleteResult> {
+      return await this.caseRepository.delete(criteria, shardingKey);
+  }
+
+  async findOneCase(options: FindOneOptions<Case4>, shardingKey?: string): Promise<Case4 | null | undefined> {
+      return this.caseRepository.findOne(options, shardingKey);
+  }
+
+  async findOneByCase(where: FindOptionsWhere<Case4>, shardingKey?: string): Promise<Case4 | null | undefined> {
+    return this.caseRepository.findOneBy(where, shardingKey);
+  }
+
+  async findCasesBy(where: FindOptionsWhere<Case4>, shardingKey?: string): Promise<Case4[]> {
+    return this.caseRepository.findBy(where, shardingKey);
+  }
+
+  async findCases(options: FindManyOptions<Case4>, shardingKey?: string): Promise<Case4[]> {
+    return this.caseRepository.find(options, shardingKey);
+  }
+
+  async countCasesBy(where: FindOptionsWhere<Case4>, shardingKey?: string): Promise<number> {
+      return this.caseRepository.countBy(where, shardingKey);
+  }
+
+  async countCases(options?: FindManyOptions<Case4>, shardingKey?: string): Promise<number> {
+      return this.caseRepository.count(options, shardingKey);
+  }
+
+  async findAndCountCasesBy(where: FindOptionsWhere<Case4>, shardingKey?: string): Promise<[Case4[], number]> {
+      return this.caseRepository.findAndCountBy(where, shardingKey);
+  }
+
+  async findAndCountCases(options?: FindManyOptions<Case4>, shardingKey?: string): Promise<[Case4[], number]> {
+    return this.caseRepository.findAndCount(options, shardingKey);
   }
 
 }
@@ -182,7 +221,7 @@ await entity.reload();
 
 
 ### 5. Writting Tests
-- An example of how to write end to end tests, assuming you have set up the main AppModule.
+- An example of how to write end to end tests, assuming you have set up the main AppModule. Additional tests can be found in [(Nest E2E test)](https://github.com/rungwe/nestjs-typeorm-sharding-repository/blob/main/src/test/nest.e2e.spec.ts)
 
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
@@ -271,23 +310,37 @@ userRepository.findBy({ firstName: 'foo'})
 ```
 In scenarios like this, it's challenging to know which shard to use based on the query alone. At present, our approach involves conducting a full scan across all available shards using parallel execution. Although this method leverages parallelism, it may lead to potential performance drawbacks, especially when the number of shards increases significantly.
 
-To address this, when using List-based sharding, we have enhanced the TypeORM BaseEntity methods **findOneById** and **findByIds** to support an optional field called shardingKey:
+To address this, when using List-based sharding, we have enhanced the TypeORM BaseEntity methods to support an optional field called shardingKey:
 
 ```Typescript
 Repository<T>.findOneById(id: string | number | Date | ObjectID, shard, shardingKey?: string): Promise<T | null>
 
 Repository<T>.findByIds(ids: any[], shardingKey?: string): Promise<T[]>
 
+Repository<T>.update(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<T>, partialEntity: QueryDeepPartialEntity<T>, shardingKey?:string): Promise<UpdateResult>
+
+Repository<T>.delete(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<T>, shardingKey?:string): Promise<DeleteResult>
+
+Repository<T>.count(options?: FindManyOptions<T>, shardingKey?:string): Promise<number>
+
+Repository<T>.countBy(where: FindOptionsWhere<T>, shardingKey?:string): Promise<number>
+
+Repository<T>.find(options?: FindManyOptions<T>, shardingKey?:string): Promise<T[]>
+
+Repository<T>.findBy(where: FindOptionsWhere<T>, shardingKey?:string): Promise<T[]>
+
+Repository<T>.findAndCount(options?: FindManyOptions<T>, shardingKey?:string): Promise<[T[], number]>
+
+Repository<T>.findAndCountBy(where: FindOptionsWhere<T>, shardingKey?:string): Promise<[T[], number]>
+
+Repository<T>.findOne(options: FindOneOptions<T>, shardingKey?:string): Promise<T | null | undefined>
+
+Repository<T>.findOneBy(where: FindOptionsWhere<T>, shardingKey?: string): Promise<T | null | undefined>
+
 ```
 These enhancements allow you to explicitly specify a sharding key along with the query, thereby improving query resolution performance by directly accessing the appropriate shard.
 
-In future developments, we will consider extending all repository find methods with optional sharding key parameter. The downside is the change of the the TypeORM BaseEntity, which we intend to follow as much as we can for cross compatibility 
-
-## Planned Enhancements
-Looking ahead, we are considering extending all repository necessary, finds and updates methods to include an optional sharding key parameter. This modification aims to streamline query processes across sharded environments by ensuring that queries are directed to the correct shard, thereby enhancing efficiency and performance.
-
-However, one challenge we face with this approach is the modification of the TypeORM BaseEntity. We aim to maintain as much compatibility with the original TypeORM interfaces as possible to ensure that our library can be used seamlessly with existing TypeORM-based applications. We will continue to explore ways to integrate these features without significantly diverging from the established patterns of TypeORM.
-
+We have extended all repository find, delete and update methods with optional sharding key parameter. This modification aims to streamline query processes across sharded environments by ensuring that queries are directed to the correct shard, thereby enhancing efficiency and performance. However, one challenge we face with this approach is the modification of the TypeORM BaseEntity. We aimed to maintain as much compatibility with the original TypeORM interfaces as much as possible to ensure that our library can be used seamlessly with existing TypeORM-based applications.
 ----
 ## Acknowledgments
 This project is a fork of [kibae/typeorm-sharding-repository](https://github.com/kibae/typeorm-sharding-repository), originally developed by Kibae Shin. Significant enhancements and adaptations have been made to support list based sharding and integrate this solution seamlessly with NestJS, focusing on transparency and ease of use in multi-tenant environments.

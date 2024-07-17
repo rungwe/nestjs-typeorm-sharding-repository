@@ -118,7 +118,7 @@ export class ShardingBaseEntity {
     static remove<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
         entities: T | T[],
-        options?: RemoveOptions
+        options?: RemoveOptions,
     ): Promise<T | T[]> {
         return this.wrapArray<T>(entities, (list) =>
             Promise.all(list.map((item: DeepPartial<T>) => this.getRepository<T>(item).remove(item as T, options)))
@@ -140,8 +140,14 @@ export class ShardingBaseEntity {
     static softRemove<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
         entities: T | T[],
-        options?: SaveOptions
+        options?: SaveOptions,
+        shardKey?: string
     ): Promise<T | T[]> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.wrapArray<T>(entities, (list) =>
+                Promise.all(list.map((item: DeepPartial<T>) => this.getRepository<T>(item).softRemove(item, options)))
+            );
+        }
         return this.wrapArray<T>(entities, (list) =>
             Promise.all(list.map((item: DeepPartial<T>) => this.getRepository<T>(item).softRemove(item, options)))
         );
@@ -151,8 +157,12 @@ export class ShardingBaseEntity {
     static async update<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
         criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<T>,
-        partialEntity: QueryDeepPartialEntity<T>
+        partialEntity: QueryDeepPartialEntity<T>,
+        shardKey?: string
     ): Promise<UpdateResult> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).update(criteria as any, partialEntity);
+        }
         return (
             await Promise.all(this.getAllRepository<T>().map((repo) => repo.update(criteria as any, partialEntity)))
         ).reduce<UpdateResult>(
@@ -173,8 +183,12 @@ export class ShardingBaseEntity {
     ////
     static async delete<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<T>
+        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<T>,
+        shardKey?: string
     ): Promise<DeleteResult> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).delete(criteria as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.delete(criteria as any)))).reduce<DeleteResult>(
             (accum, result) => {
                 accum.raw.push(...(result.raw || []));
@@ -191,8 +205,12 @@ export class ShardingBaseEntity {
     ////
     static async count<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        options?: FindManyOptions<T>
+        options?: FindManyOptions<T>,
+        shardKey?: string
     ): Promise<number> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).count(options as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.count(options as any)))).reduce(
             (total, count) => total + count.valueOf(),
             0
@@ -202,8 +220,12 @@ export class ShardingBaseEntity {
     ////
     static async countBy<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        where: FindOptionsWhere<T>
+        where: FindOptionsWhere<T>,
+        shardKey?: string
     ): Promise<number> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).countBy(where as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.countBy(where as any)))).reduce(
             (total, count) => total + count.valueOf(),
             0
@@ -213,8 +235,12 @@ export class ShardingBaseEntity {
     ////
     static async find<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        options?: FindManyOptions<T>
+        options?: FindManyOptions<T>,
+        shardKey?: string
     ): Promise<T[]> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).find(options as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.find(options as any)))).reduce<T[]>((accum, result) => {
             accum.push(...result);
             return accum;
@@ -224,8 +250,12 @@ export class ShardingBaseEntity {
     ////
     static async findBy<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        where: FindOptionsWhere<T>
+        where: FindOptionsWhere<T>,
+        shardKey?: string
     ): Promise<T[]> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).findBy(where as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.findBy(where as any)))).reduce<T[]>((accum, result) => {
             accum.push(...result);
             return accum;
@@ -235,8 +265,12 @@ export class ShardingBaseEntity {
     ////
     static async findAndCount<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        options?: FindManyOptions<T>
+        options?: FindManyOptions<T>,
+        shardKey?: string
     ): Promise<[T[], number]> {
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).findAndCount(options as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.findAndCount(options as any)))).reduce<[T[], number]>(
             (accum, result) => {
                 accum[0].push(...(result[0] || []));
@@ -250,9 +284,12 @@ export class ShardingBaseEntity {
     ////
     static async findAndCountBy<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        where: FindOptionsWhere<T>
+        where: FindOptionsWhere<T>,
+        shardKey?: string
     ): Promise<[T[], number]> {
-        this._shardingFunc
+        if (this.getShardingType() === ShardingType.LIST && shardKey) {
+            return this.getDataSourceShardingKey(shardKey).getRepository<T>(this).findAndCountBy(where as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.findAndCountBy(where as any)))).reduce<[T[], number]>(
             (accum, result) => {
                 accum[0].push(...(result[0] || []));
@@ -271,7 +308,6 @@ export class ShardingBaseEntity {
      * @returns 
      */
     static async findByIds<T extends ShardingBaseEntity>(this: { new(): T } & typeof ShardingBaseEntity, ids: any[], shardingKey?: string): Promise<T[]> {
-        console.log(ids, shardingKey);
         if (this.getShardingType() === ShardingType.RANGE) {
             const slices: [DataSource, any[]][] = [];
             ids.forEach((id) => {
@@ -302,8 +338,12 @@ export class ShardingBaseEntity {
     ////
     static async findOne<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
-        options: FindOneOptions<T>
+        options: FindOneOptions<T>,
+        shardingKey?: string
     ): Promise<T | null | undefined> {
+        if (this.getShardingType() === ShardingType.LIST && shardingKey) {
+            return this.getDataSourceShardingKey(shardingKey).getRepository<T>(this).findOne(options as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo: Repository<T>) => repo.findOne(options as any)))).find((v) => !!v);
     }
 
@@ -311,7 +351,11 @@ export class ShardingBaseEntity {
     static async findOneBy<T extends ShardingBaseEntity>(
         this: { new(): T } & typeof ShardingBaseEntity,
         where: FindOptionsWhere<T>,
+        shardingKey?: string
     ): Promise<T | null | undefined> {
+        if (this.getShardingType() === ShardingType.LIST && shardingKey) {
+            return this.getDataSourceShardingKey(shardingKey).getRepository<T>(this).findOneBy(where as any);
+        }
         return (await Promise.all(this.getAllRepository<T>().map((repo) => repo.findOneBy(where as any)))).find((v) => !!v);
     }
 
