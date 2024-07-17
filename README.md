@@ -341,6 +341,7 @@ Repository<T>.findOneBy(where: FindOptionsWhere<T>, shardingKey?: string): Promi
 These enhancements allow you to explicitly specify a sharding key along with the query, thereby improving query resolution performance by directly accessing the appropriate shard.
 
 We have extended all repository find, delete and update methods with optional sharding key parameter. This modification aims to streamline query processes across sharded environments by ensuring that queries are directed to the correct shard, thereby enhancing efficiency and performance. However, one challenge we face with this approach is the modification of the TypeORM BaseEntity. We aimed to maintain as much compatibility with the original TypeORM interfaces as much as possible to ensure that our library can be used seamlessly with existing TypeORM-based applications.
+
 ----
 ## Acknowledgments
 This project is a fork of [kibae/typeorm-sharding-repository](https://github.com/kibae/typeorm-sharding-repository), originally developed by Kibae Shin. Significant enhancements and adaptations have been made to support list based sharding and integrate this solution seamlessly with NestJS, focusing on transparency and ease of use in multi-tenant environments.
