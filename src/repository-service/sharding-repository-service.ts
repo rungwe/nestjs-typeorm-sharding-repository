@@ -7,7 +7,7 @@ import {
     UpdateResult,
     DeleteResult,
     FindManyOptions,
-    FindOneOptions,
+    FindOneOptions
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { AbstractRepositoryService } from './abstract-repository-service';
@@ -46,39 +46,40 @@ export class ShardingRepositoryService<
 
     async update(
         criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>,
-        partialEntity: QueryDeepPartialEntity<Entity>
+        partialEntity: QueryDeepPartialEntity<Entity>,
+        shardingKey?:string
     ): Promise<UpdateResult> {
-        return this.shardingEntityType.update(criteria, partialEntity);
+        return this.shardingEntityType.update(criteria, partialEntity, shardingKey);
     }
 
     async delete(
-        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>
+        criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOptionsWhere<Entity>, shardingKey?:string
     ): Promise<DeleteResult> {
-        return this.shardingEntityType.delete(criteria);
+        return this.shardingEntityType.delete(criteria, shardingKey);
     }
 
-    async count(options?: FindManyOptions<Entity>): Promise<number> {
-        return this.shardingEntityType.count(options);
+    async count(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<number> {
+        return this.shardingEntityType.count(options, shardingKey);
     }
 
-    async countBy(where: FindOptionsWhere<Entity>): Promise<number> {
-        return this.shardingEntityType.countBy(where);
+    async countBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<number> {
+        return this.shardingEntityType.countBy(where, shardingKey);
     }
 
-    async find(options?: FindManyOptions<Entity>): Promise<Entity[]> {
-        return this.shardingEntityType.find(options);
+    async find(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<Entity[]> {
+        return this.shardingEntityType.find(options, shardingKey);
     }
 
-    async findBy(where: FindOptionsWhere<Entity>): Promise<Entity[]> {
-        return this.shardingEntityType.findBy(where);
+    async findBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<Entity[]> {
+        return this.shardingEntityType.findBy(where, shardingKey);
     }
 
-    async findAndCount(options?: FindManyOptions<Entity>): Promise<[Entity[], number]> {
-        return this.shardingEntityType.findAndCount(options);
+    async findAndCount(options?: FindManyOptions<Entity>, shardingKey?:string): Promise<[Entity[], number]> {
+        return this.shardingEntityType.findAndCount(options, shardingKey);
     }
 
-    async findAndCountBy(where: FindOptionsWhere<Entity>): Promise<[Entity[], number]> {
-        return this.shardingEntityType.findAndCountBy(where);
+    async findAndCountBy(where: FindOptionsWhere<Entity>, shardingKey?:string): Promise<[Entity[], number]> {
+        return this.shardingEntityType.findAndCountBy(where, shardingKey);
     }
 
     async findByIds(ids: any[], shardingKey?: string): Promise<Entity[]> {
@@ -89,11 +90,11 @@ export class ShardingRepositoryService<
         return this.shardingEntityType.findOneById(id, shardingKey);
     }
 
-    async findOne(options: FindOneOptions<Entity>): Promise<Entity | null | undefined> {
-        return this.shardingEntityType.findOne(options);
+    async findOne(options: FindOneOptions<Entity>, shardingKey?:string): Promise<Entity | null | undefined> {
+        return this.shardingEntityType.findOne(options, shardingKey);
     }
 
-    async findOneBy(where: FindOptionsWhere<Entity>): Promise<Entity | null | undefined> {
-        return this.shardingEntityType.findOneBy(where);
+    async findOneBy(where: FindOptionsWhere<Entity>, shardingKey?: string): Promise<Entity | null | undefined> {
+        return this.shardingEntityType.findOneBy(where, shardingKey);
     }
 }
